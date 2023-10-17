@@ -11,6 +11,8 @@ const Tasks = () => {
   };
 
   const [todos, setTodos] = useState([]);
+
+  const [EditMode, setEditMode] = useState(null)
   
   const [formData, setFormData] = useState(initialState);
   const { title, body } = formData;
@@ -35,6 +37,43 @@ const Tasks = () => {
     }
   }
 
+  const handleDeleteTodo = (id)=>{
+    const updateTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(updateTodos)
+  }
+
+  const EditBtn = (id)=>{
+    setEditMode(id);
+    const todoToEdit = todos.find((todo) => todo.id === id);
+    setFormData({
+      title: todoToEdit.text,
+      body: todoToEdit.body,
+    }); 
+  }
+
+  const handleUpdateTodo = () => {
+    if (title.trim() === '' || body.trim() === '') {
+      alert('Please, fill the input field');
+    } else {
+      const updateTodos = todos.map((todo) =>{
+        if (todo.id === EditMode) {
+          return{
+            ...todo,
+            text: title,
+            body: body,
+          }
+        }
+        return todo;
+      });
+      setTodos(updateTodos);
+      setFormData(initialState);
+      setEditMode(null);
+    }
+  }
+
+
+
+
 
   return (
     <div className='todo-container'>
@@ -44,7 +83,7 @@ const Tasks = () => {
         <input type="text" placeholder='Title' 
         name="title" value={title} onChange={handleChange} />
 
-        <button onClick={handleAdd}>Add</button>
+        {EditMode ?(<button onClick={handleUpdateTodo}>Update</button>) : ( <button onClick={handleAdd}>Add</button>)}
       </div>
 
       <textarea 
@@ -55,16 +94,18 @@ const Tasks = () => {
       />
 
       <div className='todo-list'>
-        <div>
+        {todos.map((todo) =>(
+          <div key={todo.id}>
             <ul>
-                <li>TITLE:</li>
-                <li>BODY:</li>
-                <div>
-                    <button className='span'>Delete</button>
-                    <button className='span'>Edit</button>
-                </div>
+              <li>TITLE: {todo.text}</li>
+              <li>BODY: {todo.body}</li>
+              <div>
+                <button className='span' onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
+                <button className='span' onClick={() => EditBtn(todo.id)}>Edit</button>
+              </div>
             </ul>
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   )
